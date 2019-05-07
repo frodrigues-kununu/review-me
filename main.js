@@ -1,6 +1,9 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron');
 require('dotenv').config();
+  
+var express = require('express');
+var expressApp = express();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -17,7 +20,10 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile('index.html');
+
+  mainWindow.on('will-navigate', function() {
+    console.log("triggered");
+  })
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -29,6 +35,26 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+
+  app.on('activate', function () {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) createWindow();
+  })
+  
+  expressApp.get('/pendingReviews', function(req, res){
+   console.log("reviews pending");
+
+   console.log("the code is ", req.query.code);
+
+   mainWindow.loadFile('index.html');
+  });
+  
+  expressApp.listen(3000, function () {
+    console.log("Server started");
+    var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.CLIENT_ID}`;
+    mainWindow.loadURL(githubUrl);
+  });
 }
 
 // This method will be called when Electron has finished
@@ -43,11 +69,6 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
-app.on('activate', function () {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) createWindow();
-})
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
