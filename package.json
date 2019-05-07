@@ -24,6 +24,7 @@
   "homepage": "https://github.com/frodrigues-kununu/review-me#readme",
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.2.10",
+    "dotenv": "^8.0.0",
     "electron": "^5.0.1"
   },
   "dependencies": {
