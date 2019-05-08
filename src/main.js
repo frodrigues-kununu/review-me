@@ -1,11 +1,17 @@
 import { LitElement, html } from 'lit-element';
 import './login.js';
+import './reviews.js';
 
 class Main extends LitElement {
 
     render() {
+        if (false) {
+            return html`
+                <login-element></login-element>
+            `;
+        }
         return html`
-            <login-element></login-element>
+            <reviews-element></reviews-element>
         `;
     }
 }
