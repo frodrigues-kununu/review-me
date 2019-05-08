@@ -1,7 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray } = require('electron');
 require('dotenv').config();
-
+const fs = require('fs');
 const express = require('express');
 const expressApp = express();
 const axios = require('axios');
@@ -13,7 +13,9 @@ ipcMain.on('user-clicked-auth-button', (event, arg) => {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
+let trayWindow;
+let tray;
 
 function createWindow() {
   // Create the browser window.
@@ -21,7 +23,9 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      // preload: "preload.js",
+      backgroundThrottling: false
     },
     show: true
   });
@@ -42,14 +46,21 @@ function createWindow() {
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow();
   })
-  
+
   mainWindow.loadFile('./index.html');
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+
+  readToken();
+
+  createTray();
+  createTrayWindow();
+  createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -58,8 +69,64 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
-function startServer() {
+function createTray() {
+  // tray = new Tray(path.join(assetsDirectory, 'sunTemplate.png'))
+  tray = new Tray('assets/trayicon.png')
+  tray.setTitle('');
+  tray.on('right-click', toggleTrayWindow)
+  tray.on('double-click', toggleTrayWindow)
+  tray.on('click', function (event) {
+    toggleTrayWindow();
+  })
+}
 
+function createTrayWindow() {
+  trayWindow = new BrowserWindow({
+    width: 480,
+    height: 600,
+    show: false,
+    frame: false,
+    fullscreenable: false,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      // preload: "preload.js",
+      backgroundThrottling: false
+    }
+  })
+  trayWindow.loadFile('./index.html')
+}
+
+const getWindowPosition = () => {
+  const windowBounds = trayWindow.getBounds()
+  const trayBounds = tray.getBounds()
+
+  // Center window horizontally below the tray icon
+  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
+
+  // Position window 4 pixels vertically below the tray icon
+  const y = Math.round(trayBounds.y + trayBounds.height + 4)
+
+  return { x: x, y: y }
+}
+
+function toggleTrayWindow() {
+  if (
+    trayWindow.isVisible()) {
+    trayWindow.hide()
+  } else {
+    showWindow()
+  }
+}
+
+function showWindow() {
+  const position = getWindowPosition()
+  trayWindow.setPosition(position.x, position.y, false);
+  trayWindow.show();
+  trayWindow.focus();
+}
+
+function startServer() {
   expressApp.get('/pendingReviews', function (req, res) {
     const code = req.query.code;
 
@@ -72,9 +139,8 @@ function startServer() {
       const params = res.data.split('&');
       const accessToken = params[0].substr(13);
 
-      console.log("accessToken ", accessToken);
-
-      mainWindow.webContents.send('access-token-retrieved', accessToken);
+      saveToken(accessToken);
+      messageRendererProcesses('access-token-retrieved', accessToken)
     }).catch(error => {
       console.error("Request error");
     });
@@ -82,10 +148,28 @@ function startServer() {
 
   expressApp.listen(3000, function () {
     console.log("Server started");
-    var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email&client_id=${process.env.CLIENT_ID}`;
+    var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email:notifications&client_id=${process.env.CLIENT_ID}`;
     mainWindow.loadURL(githubUrl);
   });
 }
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+function saveToken(token) {
+  fs.writeFile("/tmp/data", token, (err) => {
+    if (err) {
+      return console.log(err);
+    }
+  });
+}
+
+function readToken() {
+  return fs.readFile("/tmp/data", "utf8", (err, content) => {
+    if (!err) {
+      console.log("Read file: ", content);
+    }
+  });
+}
+
+function messageRendererProcesses(channel, message) {
+  mainWindow.webContents.send(channel, message);
+  trayWindow.webContents.send(channel, message);
+}
