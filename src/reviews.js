@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
+const { shell } = require('electron');
 
 class Reviews extends LitElement {
   static get properties() {
@@ -10,7 +11,7 @@ class Reviews extends LitElement {
   };
   constructor() {
     super();
-    this.accessToken = 'c8c8e3a9058ea175a66efda47ea20ab9389bf8bd';
+    this.accessToken = '1c3fb6edd22490ed239e8c0949d86f2b3748945f';
     this.reviews = [];
   }
 
@@ -20,13 +21,14 @@ class Reviews extends LitElement {
       <ul>
       ${this.reviews.map((item, index) =>
         html`
-          <li>
-            <a href=${item.html_url} target="_blank">${item.title}</a>
+          <li @click=${() => this.navigateViaBrowser(item.html_url)}>
+            ${item.title}
           </li>
         `)}
       </ul>
     `;
   }
+
   connectedCallback() {
     super.connectedCallback();
     this.fetchUser();
@@ -43,6 +45,7 @@ class Reviews extends LitElement {
       })
       .catch(error => console.error("Error:", error));
   }
+  
   fetchReviews() {
     fetch(
       `https://api.github.com/search/issues?q=review-requested:${this.login}&access_token=${this.accessToken}`,
@@ -55,5 +58,10 @@ class Reviews extends LitElement {
       })
       .catch(error => console.error("Error:", error));
   }
+
+  navigateViaBrowser(url){
+    shell.openExternal(url);
+  }
+
 }
 customElements.define('reviews-element', Reviews);
