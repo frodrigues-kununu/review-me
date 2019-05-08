@@ -2288,4 +2288,15 @@ class Login extends LitElement {
   }
 }
 customElements.define('login-element', Login);
-//# sourceMappingURL=login.js.map
+
+class Main extends LitElement {
+
+    render() {
+        return html`
+            <login-element></login-element>
+            <p>today</p>
+        `;
+    }
+}
+customElements.define('main-element', Main);
+//# sourceMappingURL=main.js.map
