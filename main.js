@@ -74,7 +74,7 @@ app.on('ready', () => {
   createWindow();
 
   const token = readToken();
-
+  console.log('token:', token);
   if(token){
     messageRendererProcesses('access-token-retrieved', token);
   }
