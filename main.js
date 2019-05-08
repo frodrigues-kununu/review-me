@@ -148,7 +148,7 @@ function startServer() {
 
   expressApp.listen(3000, function () {
     console.log("Server started");
-    var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email:notifications&client_id=${process.env.CLIENT_ID}`;
+    var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${process.env.CLIENT_ID}`;
     mainWindow.loadURL(githubUrl);
   });
 }
