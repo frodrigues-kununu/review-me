@@ -3,7 +3,10 @@ const { shell, ipcRenderer } = require('electron');
 
 class Reviews extends LitElement {
   static get properties() {
-    return { reviews: [] };
+    return {
+      reviews: [],
+      accessToken: String
+    };
   }
   static get styles() {
     return css`
@@ -11,7 +14,6 @@ class Reviews extends LitElement {
   };
   constructor() {
     super();
-    this.accessToken = '1c3fb6edd22490ed239e8c0949d86f2b3748945f';
     this.reviews = [];
   }
 
@@ -45,7 +47,7 @@ class Reviews extends LitElement {
       })
       .catch(error => console.error("Error:", error));
   }
-  
+
   fetchReviews() {
     fetch(
       `https://api.github.com/search/issues?q=review-requested:${this.login}&access_token=${this.accessToken}`,
@@ -55,12 +57,12 @@ class Reviews extends LitElement {
         console.log('sucesso:')
         console.log(response);
         this.reviews = response.items;
-        ipcRenderer.send('pending-reviews-update', this.reviews.length+'');
+        ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
       })
       .catch(error => console.error("Error:", error));
   }
 
-  navigateViaBrowser(url){
+  navigateViaBrowser(url) {
     shell.openExternal(url);
   }
 

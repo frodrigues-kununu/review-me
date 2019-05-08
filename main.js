@@ -15,6 +15,17 @@ ipcMain.on('pending-reviews-update', (event, arg) => {
   tray.setTitle(arg);
 });
 
+
+// send access-token-retrieved
+
+// send redirect-after-auth
+
+// receive token-expired
+
+// receive user-clicked-auth-button
+
+// receive pending-reviews-update
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -58,12 +69,15 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-
-  readToken();
-
   createTray();
   createTrayWindow();
   createWindow();
+
+  const token = readToken();
+
+  if(token){
+    messageRendererProcesses('access-token-retrieved', accessToken);
+  }
 });
 
 // Quit when all windows are closed.
@@ -144,7 +158,8 @@ function startServer() {
       const accessToken = params[0].substr(13);
 
       saveToken(accessToken);
-      messageRendererProcesses('access-token-retrieved', accessToken)
+      messageRendererProcesses('access-token-retrieved', accessToken);
+      expressApp.close();
     }).catch(error => {
       console.error("Request error");
     });
@@ -166,9 +181,12 @@ function saveToken(token) {
 }
 
 function readToken() {
-  return fs.readFile("/tmp/data", "utf8", (err, content) => {
+   fs.readFile("/tmp/data", "utf8", (err, content) => {
     if (!err) {
       console.log("Read file: ", content);
+      return content;
+    } else {
+      return false;
     }
   });
 }

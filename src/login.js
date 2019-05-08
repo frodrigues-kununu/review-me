@@ -1,12 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
+
 const { ipcRenderer } = require('electron');
-
-ipcRenderer.on('access-token-retrieved', (event, arg) => {
-  // do stuff
-  console.log("token :", arg);
-  // this.token = arg;
-});
-
 
 class Login extends LitElement {
   static get styles() {

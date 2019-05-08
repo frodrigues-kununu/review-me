@@ -1,17 +1,35 @@
 import { LitElement, html } from 'lit-element';
+const { ipcRenderer } = require('electron');
+
 import './login.js';
 import './reviews.js';
 
 class Main extends LitElement {
 
+    static get properties() {
+        return {
+            isUserAuthenticated: false,
+            accessToken: '',
+        };
+    }
+
+    constructor() {
+        super();
+        ipcRenderer.on('access-token-retrieved', (event, arg) => {
+            this.isUserAuthenticated = true;
+            this.accessToken = arg;
+        });
+
+    }
+
     render() {
-        if (false) {
+        if (!this.isUserAuthenticated) {
             return html`
                 <login-element></login-element>
             `;
         }
         return html`
-            <reviews-element></reviews-element>
+            <reviews-element accessToken=${this.accessToken}></reviews-element>
         `;
     }
 }
