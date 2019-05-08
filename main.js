@@ -76,7 +76,7 @@ app.on('ready', () => {
   const token = readToken();
 
   if(token){
-    messageRendererProcesses('access-token-retrieved', accessToken);
+    messageRendererProcesses('access-token-retrieved', token);
   }
 });
 
@@ -181,14 +181,7 @@ function saveToken(token) {
 }
 
 function readToken() {
-   fs.readFile("/tmp/data", "utf8", (err, content) => {
-    if (!err) {
-      console.log("Read file: ", content);
-      return content;
-    } else {
-      return false;
-    }
-  });
+  return fs.existsSync('/tmp/data') ? fs.readFileSync('/tmp/data', 'utf8') : '';
 }
 
 function messageRendererProcesses(channel, message) {
