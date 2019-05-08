@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-const { shell } = require('electron');
+const { shell, ipcRenderer } = require('electron');
 
 class Reviews extends LitElement {
   static get properties() {
@@ -55,6 +55,7 @@ class Reviews extends LitElement {
         console.log('sucesso:')
         console.log(response);
         this.reviews = response.items;
+        ipcRenderer.send('pending-reviews-update', this.reviews.length+'');
       })
       .catch(error => console.error("Error:", error));
   }
