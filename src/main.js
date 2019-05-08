@@ -6,7 +6,6 @@ class Main extends LitElement {
     render() {
         return html`
             <login-element></login-element>
-            <p>today</p>
         `;
     }
 }
