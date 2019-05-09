@@ -48,7 +48,6 @@ function registerRendererReadyEvent() {
     mainWindow.show();
 
     const token = readToken();
-    console.log('token:', token);
     if (token) {
       messageRendererProcesses('access-token-retrieved', token);
     }
@@ -192,7 +191,6 @@ function startServer() {
   });
 
   serverInstance = expressApp.listen(3000, function () {
-    console.log("Server started");
     var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${process.env.CLIENT_ID}`;
     mainWindow.loadURL(githubUrl);
     trayWindow.loadURL(githubUrl);

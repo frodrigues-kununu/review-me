@@ -3,19 +3,23 @@ const { ipcRenderer } = require('electron');
 
 import './login.js';
 import './reviews.js';
+import './loading';
 
 class Main extends LitElement {
 
     static get properties() {
         return {
-            accessToken: '',
+            accessToken: String,
+            loaded: Boolean,
         };
     }
 
     constructor() {
         super();
+        this.accessToken = '';
+        this.loaded = false;
         ipcRenderer.on('access-token-retrieved', (event, arg) => {
-          console.log("renderer token ", arg);
+            this.loaded = true;
             this.accessToken = arg;
         });
 
@@ -30,12 +34,16 @@ class Main extends LitElement {
     }
 
     render() {
-      console.log("render ", this.accessToken);
-        if (!this.accessToken) {
+      if (!this.loaded) {
+        return html`<loading-element></loading-element>`;
+      }
+
+      if (!this.accessToken) {
             return html`
                 <login-element></login-element>
             `;
         }
+
         return html`
             <reviews-element accessToken=${this.accessToken}></reviews-element>
         `;

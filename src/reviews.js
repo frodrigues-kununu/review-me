@@ -1,6 +1,8 @@
 import { LitElement, html, css } from 'lit-element';
 const { shell, ipcRenderer } = require('electron');
 
+import './loading';
+
 class Reviews extends LitElement {
   static get styles() {
     return css`
@@ -51,9 +53,9 @@ class Reviews extends LitElement {
 
   static get properties() {
     return {
-      reviews: [],
+      reviews: Array,
       accessToken: String,
-      isFetching: false,
+      isFetching: Boolean,
       intervalRef: Number,
     };
   }
@@ -61,11 +63,12 @@ class Reviews extends LitElement {
   constructor() {
     super();
     this.reviews = [];
+    this.isFetching = true;
   }
 
   render() {
     if (this.isFetching) {
-      return html`<div>Is Fetching</div>`;
+      return html`<loading-element></loading-element>`;
     }
 
     return html`
@@ -97,44 +100,46 @@ class Reviews extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     clearTimeout(this.intervalRef);
-    console.log("cleared tiemout");
   }
 
   fetchUser() {
-    fetch(
-      `https://api.github.com/user?access_token=${this.accessToken}`,
-    )
-      .then(res => res.json())
-      .then(response => {
-        this.login = response.login;
-        this.isFetching = true;
+    fetch(`https://api.github.com/user?access_token=${this.accessToken}`)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('error');
+      }
+      return res.json();
+    })
+    .then(response => {
+      this.login = response.login;
+      this.fetchReviews();
+      this.intervalRef = setInterval(() => {
         this.fetchReviews();
-        this.intervalRef = setInterval(() => {
-          this.fetchReviews();
-        }, 30000);
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        this.navigateToLogin();
-      });
+      }, 30000);
+    })
+    .catch(() => {
+      console.error("Error:", error);
+      this.navigateToLogin();
+    });
   }
 
   fetchReviews() {
-    fetch(
-      `https://api.github.com/search/issues?q=review-requested:${this.login}&access_token=${this.accessToken}`,
-    )
-      .then(res => res.json())
-      .then(response => {
-        console.log('sucesso:')
-        console.log(response.items);
-        this.reviews = response.items.filter((item) => item.state !== 'closed');
-        ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
-        this.isFetching = false;
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        this.navigateToLogin();
-      });
+    fetch(`https://api.github.com/search/issues?q=review-requested:${this.login}&access_token=${this.accessToken}`)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('error');
+      }
+      return res.json();
+    })
+    .then(response => {
+      this.reviews = response.items.filter((item) => item.state !== 'closed');
+      ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
+      this.isFetching = false;
+    })
+    .catch(() => {
+      console.error("Error:", error);
+      this.navigateToLogin();
+    });
   }
 
   navigateViaBrowser(url) {
