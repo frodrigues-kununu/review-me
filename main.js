@@ -15,22 +15,20 @@ ipcMain.on('pending-reviews-update', (event, arg) => {
   tray.setTitle(arg);
 });
 
-ipcMain.once('main-renderer-ready', (event, arg) => {
-  mainWindow.show();
+ipcMain.on('access-token-expired', (event, arg) => {
+  tray.setTitle('');
+  messageRendererProcesses('access-token-expired');
+  registerRendererReadyEvent();
+});
 
-  const token = readToken();
-  console.log('token:', token);
-  if(token){
-    messageRendererProcesses('access-token-retrieved', token);
-  }
-})
 
+registerRendererReadyEvent();
 
 // send access-token-retrieved
 
 // send redirect-after-auth
 
-// receive token-expired
+// receive access-token-expired
 
 // receive user-clicked-auth-button
 
@@ -43,6 +41,19 @@ ipcMain.once('main-renderer-ready', (event, arg) => {
 let mainWindow;
 let trayWindow;
 let tray;
+let serverInstance;
+
+function registerRendererReadyEvent() {
+  ipcMain.once('main-renderer-ready', (event, arg) => {
+    mainWindow.show();
+
+    const token = readToken();
+    console.log('token:', token);
+    if (token) {
+      messageRendererProcesses('access-token-retrieved', token);
+    }
+  })
+}
 
 function createWindow() {
   // Create the browser window.
@@ -56,6 +67,8 @@ function createWindow() {
     },
     show: false
   });
+
+  mainWindow.setMenu(null);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -117,8 +130,10 @@ function createTrayWindow() {
       // preload: "preload.js",
       backgroundThrottling: false
     },
-    show:false,
+    show: false,
   })
+
+  trayWindow.setMenu(null);
   trayWindow.loadFile('./index.html')
 }
 
@@ -138,9 +153,9 @@ const getWindowPosition = () => {
 function toggleTrayWindow() {
   if (
     trayWindow.isVisible()) {
-    trayWindow.hide()
+    trayWindow.hide();
   } else {
-    showWindow()
+    showWindow();
   }
 }
 
@@ -166,13 +181,14 @@ function startServer() {
 
       saveToken(accessToken);
       messageRendererProcesses('access-token-retrieved', accessToken);
-      expressApp.close();
+      serverInstance.close();
     }).catch(error => {
       console.error("Request error");
+      serverInstance.close();
     });
   });
 
-  expressApp.listen(3000, function () {
+  serverInstance = expressApp.listen(3000, function () {
     console.log("Server started");
     var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${process.env.CLIENT_ID}`;
     mainWindow.loadURL(githubUrl);

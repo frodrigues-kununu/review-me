@@ -45,7 +45,10 @@ class Reviews extends LitElement {
         this.login = response.login;
         this.fetchReviews();
       })
-      .catch(error => console.error("Error:", error));
+      .catch(error => {
+        console.error("Error:", error);
+        this.navigateToLogin();
+      });
   }
 
   fetchReviews() {
@@ -59,11 +62,18 @@ class Reviews extends LitElement {
         this.reviews = response.items;
         ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
       })
-      .catch(error => console.error("Error:", error));
+      .catch(error => {
+        console.error("Error:", error);
+        this.navigateToLogin();
+      });
   }
 
   navigateViaBrowser(url) {
     shell.openExternal(url);
+  }
+
+  navigateToLogin() {
+    ipcRenderer.send('access-token-expired');
   }
 
 }

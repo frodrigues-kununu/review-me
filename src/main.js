@@ -16,9 +16,11 @@ class Main extends LitElement {
         super();
         ipcRenderer.on('access-token-retrieved', (event, arg) => {
             this.accessToken = arg;
-
-            console.log("in ", arg)
         });
+
+        ipcRenderer.on('access-token-expired', (event, arg) => {
+          this.accessToken = '';
+      });
     }
 
     connectedCallback(){
