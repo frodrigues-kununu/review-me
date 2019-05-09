@@ -53,6 +53,7 @@ class Reviews extends LitElement {
     return {
       reviews: [],
       accessToken: String,
+      isFetching: false,
     };
   }
 
@@ -62,6 +63,10 @@ class Reviews extends LitElement {
   }
 
   render() {
+    if (this.isFetching) {
+      return html`<div>Is Fetching</div>`;
+    }
+
     return html`
       <div class="titleContainer">
         <h1>
@@ -95,6 +100,7 @@ class Reviews extends LitElement {
       .then(res => res.json())
       .then(response => {
         this.login = response.login;
+        this.isFetching = true;
         this.fetchReviews();
         setInterval(() => {
           this.fetchReviews();
@@ -116,6 +122,7 @@ class Reviews extends LitElement {
         console.log(response.items);
         this.reviews = response.items.filter((item) => item.state !== 'closed');
         ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
+        this.isFetching = false;
       })
       .catch(error => {
         console.error("Error:", error);
