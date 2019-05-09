@@ -5,6 +5,9 @@ const fs = require('fs');
 const express = require('express');
 const expressApp = express();
 const axios = require('axios');
+const path = require('path');
+
+const assetsDirectory = path.join(__dirname, 'assets')
 
 ipcMain.on('user-clicked-auth-button', (event, arg) => {
   // do stuff
@@ -106,8 +109,7 @@ app.on('window-all-closed', function () {
 })
 
 function createTray() {
-  // tray = new Tray(path.join(assetsDirectory, 'sunTemplate.png'))
-  tray = new Tray('assets/trayicon.png')
+  tray = new Tray(path.join(assetsDirectory, 'trayicon.png'));
   tray.setTitle('');
   tray.on('right-click', toggleTrayWindow)
   tray.on('double-click', toggleTrayWindow)
@@ -202,7 +204,7 @@ function saveToken(token) {
     if (!err){
       fs.writeFile("/tmp/ReviewMe/data", token, (err) => {
         if (err) {
-          return console.log(err);
+          return console.error(err);
         }
       });
     }

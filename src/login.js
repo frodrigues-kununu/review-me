@@ -42,7 +42,7 @@ class Login extends LitElement {
 
   render() {
     return html`
-      <img class="logo" src="assets/logo.png" alt="logo.png" />
+      <img class="logo" src="./assets/logo.png" alt="logo.png" />
       <p class="loginDescription">Please sign in with your Github account to get started.</p>
       <button class="signInButton" @click=${this.requestUserAuth}>Sign in with Github</button>
       `;
