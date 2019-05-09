@@ -12,11 +12,18 @@
   },
   "build": {
     "appId": "com.review-me",
-    "asar": false,
     "mac": {
       "category": "productivity"
     },
-    "extraFiles": ["build"]
+    "extraResources": [
+      {
+        "from": "./build",
+        "to": "./app/build",
+        "filter": [
+          "*"
+        ]
+      }
+    ]
   },
   "repository": {
     "type": "git",
