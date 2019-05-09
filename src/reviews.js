@@ -78,7 +78,7 @@ class Reviews extends LitElement {
           </li>
         `)}
 
-        ${this.reviews.length === 0 && html`<li class="reviewLine noHover">Nothing to review. Lucky you!</li>`}
+        ${this.reviews.length === 0 ? html`<li class="reviewLine noHover">Nothing to review. Lucky you!</li>` : null}
       </ul>
     `;
   }
