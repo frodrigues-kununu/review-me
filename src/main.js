@@ -16,11 +16,18 @@ class Main extends LitElement {
         super();
         ipcRenderer.on('access-token-retrieved', (event, arg) => {
             this.accessToken = arg;
-        });
 
+            console.log("in ", arg)
+        });
+    }
+
+    connectedCallback(){
+      super.connectedCallback();
+      ipcRenderer.send('main-renderer-ready');
     }
 
     render() {
+      console.log("render ", this.accessToken);
         if (!this.accessToken) {
             return html`
                 <login-element></login-element>

@@ -15,6 +15,16 @@ ipcMain.on('pending-reviews-update', (event, arg) => {
   tray.setTitle(arg);
 });
 
+ipcMain.once('main-renderer-ready', (event, arg) => {
+  mainWindow.show();
+
+  const token = readToken();
+  console.log('token:', token);
+  if(token){
+    messageRendererProcesses('access-token-retrieved', token);
+  }
+})
+
 
 // send access-token-retrieved
 
@@ -25,6 +35,8 @@ ipcMain.on('pending-reviews-update', (event, arg) => {
 // receive user-clicked-auth-button
 
 // receive pending-reviews-update
+
+// receive 
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -42,7 +54,7 @@ function createWindow() {
       // preload: "preload.js",
       backgroundThrottling: false
     },
-    show: true
+    show: false
   });
 
   // Open the DevTools.
@@ -72,12 +84,6 @@ app.on('ready', () => {
   createTray();
   createTrayWindow();
   createWindow();
-
-  const token = readToken();
-  console.log('token:', token);
-  if(token){
-    messageRendererProcesses('access-token-retrieved', token);
-  }
 });
 
 // Quit when all windows are closed.
@@ -110,7 +116,8 @@ function createTrayWindow() {
       nodeIntegration: true,
       // preload: "preload.js",
       backgroundThrottling: false
-    }
+    },
+    show:false,
   })
   trayWindow.loadFile('./index.html')
 }
