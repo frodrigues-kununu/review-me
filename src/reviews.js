@@ -2,16 +2,55 @@ import { LitElement, html, css } from 'lit-element';
 const { shell, ipcRenderer } = require('electron');
 
 class Reviews extends LitElement {
+  static get styles() {
+    return css`
+      .titleContainer {
+        padding: 20px;
+      }
+      h1 {
+        color: #bfbfbf;
+        
+        span {
+          color: red;
+          font-weight: 600;
+        }
+      }
+
+      ul {
+        background-color: #fff;
+        list-style: none;
+        padding: 0;
+      }
+      
+      .reviewLine {
+        border-bottom: 1px solid #cecece;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 30px;
+        cursor: pointer;
+      }
+
+      .reviewLine:last-child {
+        border-bottom: none;
+      }
+      
+      .reviewLine:hover {
+        box-shadow: rgb(145, 145, 145) 0px 0px 6px 0px;
+      }
+
+      .date {
+        color: #bfbfbf;
+      }
+    `;
+  };
+
   static get properties() {
     return {
       reviews: [],
       accessToken: String
     };
   }
-  static get styles() {
-    return css`
-    `;
-  };
+
   constructor() {
     super();
     this.reviews = [];
@@ -19,12 +58,18 @@ class Reviews extends LitElement {
 
   render() {
     return html`
-      <h1>List of reviews</h1>
+      <div class="titleContainer">
+        <h1>
+          <span>${this.reviews.length}</span>
+          Pending Reviews
+        </h1>
+      </div>
       <ul>
       ${this.reviews.map((item, index) =>
-        html`
-          <li @click=${() => this.navigateViaBrowser(item.html_url)}>
-            ${item.title}
+        item.state !== 'close' && html`
+          <li class="reviewLine" @click=${() => this.navigateViaBrowser(item.html_url)}>
+            <a>${item.title}</a>
+            <span class="date">${new Date(item.created_at).toLocaleDateString()}</span>
           </li>
         `)}
       </ul>
@@ -58,7 +103,7 @@ class Reviews extends LitElement {
       .then(res => res.json())
       .then(response => {
         console.log('sucesso:')
-        console.log(response);
+        console.log(response.items);
         this.reviews = response.items;
         ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
       })
