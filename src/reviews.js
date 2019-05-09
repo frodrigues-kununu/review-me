@@ -27,7 +27,6 @@ class Reviews extends LitElement {
         display: flex;
         justify-content: space-between;
         padding: 20px 30px;
-        cursor: pointer;
       }
 
       .reviewLine:last-child {
@@ -35,7 +34,13 @@ class Reviews extends LitElement {
       }
       
       .reviewLine:hover {
+        cursor: pointer;
         box-shadow: rgb(145, 145, 145) 0px 0px 6px 0px;
+      }
+
+      .reviewLine.noHover:hover {
+        cursor: default;
+        box-shadow: none;
       }
 
       .date {
@@ -66,12 +71,14 @@ class Reviews extends LitElement {
       </div>
       <ul>
       ${this.reviews.map((item, index) =>
-        item.state !== 'close' && html`
+        html`
           <li class="reviewLine" @click=${() => this.navigateViaBrowser(item.html_url)}>
             <a>${item.title}</a>
             <span class="date">${new Date(item.created_at).toLocaleDateString()}</span>
           </li>
         `)}
+
+        ${this.reviews.length === 0 && html`<li class="reviewLine noHover">Nothing to review. Lucky you!</li>`}
       </ul>
     `;
   }
@@ -107,7 +114,7 @@ class Reviews extends LitElement {
       .then(response => {
         console.log('sucesso:')
         console.log(response.items);
-        this.reviews = response.items;
+        this.reviews = response.items.filter((item) => item.state !== 'closed');
         ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
       })
       .catch(error => {
