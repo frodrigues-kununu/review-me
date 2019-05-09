@@ -67,10 +67,10 @@ function createWindow() {
       // preload: "preload.js",
       backgroundThrottling: false
     },
-    show: false
+    show: true
   });
 
-  mainWindow.setMenu(null);
+  // mainWindow.setMenu(null);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
