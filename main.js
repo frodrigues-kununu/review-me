@@ -120,7 +120,7 @@ function createTray() {
 
 function createTrayWindow() {
   trayWindow = new BrowserWindow({
-    width: 480,
+    width: 1024,
     height: 600,
     show: false,
     frame: false,

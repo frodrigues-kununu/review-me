@@ -2,7 +2,7 @@
   "name": "review-me",
   "version": "0.0.1",
   "description": "Manage your github code review requests",
-  "main": "main.js",
+  "main": "./main.js",
   "scripts": {
     "test": "test",
     "start": "npm run build && electron .",
@@ -15,7 +15,8 @@
     "asar": false,
     "mac": {
       "category": "productivity"
-    }
+    },
+    "extraFiles": ["build"]
   },
   "repository": {
     "type": "git",
