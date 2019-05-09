@@ -8,7 +8,6 @@ class Main extends LitElement {
 
     static get properties() {
         return {
-            isUserAuthenticated: false,
             accessToken: '',
         };
     }
@@ -16,14 +15,13 @@ class Main extends LitElement {
     constructor() {
         super();
         ipcRenderer.on('access-token-retrieved', (event, arg) => {
-            this.isUserAuthenticated = true;
             this.accessToken = arg;
         });
 
     }
 
     render() {
-        if (!this.isUserAuthenticated) {
+        if (!this.accessToken) {
             return html`
                 <login-element></login-element>
             `;
