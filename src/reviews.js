@@ -5,7 +5,7 @@ class Reviews extends LitElement {
   static get properties() {
     return {
       reviews: [],
-      accessToken: String
+      accessToken: String,
     };
   }
   static get styles() {
@@ -44,6 +44,9 @@ class Reviews extends LitElement {
       .then(response => {
         this.login = response.login;
         this.fetchReviews();
+        setInterval(() => {
+          this.fetchReviews();
+        }, 30000);
       })
       .catch(error => {
         console.error("Error:", error);
@@ -57,7 +60,7 @@ class Reviews extends LitElement {
     )
       .then(res => res.json())
       .then(response => {
-        console.log('sucesso:')
+        console.log('sucesso:');
         console.log(response);
         this.reviews = response.items;
         ipcRenderer.send('pending-reviews-update', this.reviews.length + '');

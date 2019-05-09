@@ -15,6 +15,7 @@ class Main extends LitElement {
     constructor() {
         super();
         ipcRenderer.on('access-token-retrieved', (event, arg) => {
+          console.log("retrieved");
             this.accessToken = arg;
         });
 
