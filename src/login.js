@@ -43,7 +43,7 @@ class Login extends LitElement {
   render() {
     return html`
       <img class="logo" src="assets/logo.png" alt="logo.png" />
-      <p class="loginDescription">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled</p>
+      <p class="loginDescription">Please sign in with your Github account to get started.</p>
       <button class="signInButton" @click=${this.requestUserAuth}>Sign in with Github</button>
       `;
   }

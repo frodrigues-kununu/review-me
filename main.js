@@ -134,7 +134,7 @@ function createTrayWindow() {
   })
 
   trayWindow.setMenu(null);
-  trayWindow.loadFile('./index.html')
+  trayWindow.loadFile('./index.html');
 }
 
 const getWindowPosition = () => {
@@ -181,6 +181,9 @@ function startServer() {
 
       saveToken(accessToken);
       messageRendererProcesses('access-token-retrieved', accessToken);
+      mainWindow.loadFile('./index.html');
+      trayWindow.loadFile('./index.html');
+
       serverInstance.close();
     }).catch(error => {
       console.error("Request error");
@@ -192,19 +195,24 @@ function startServer() {
     console.log("Server started");
     var githubUrl = `https://github.com/login/oauth/authorize?scope=user:email,repo&client_id=${process.env.CLIENT_ID}`;
     mainWindow.loadURL(githubUrl);
+    trayWindow.loadURL(githubUrl);
   });
 }
 
 function saveToken(token) {
-  fs.writeFile("/tmp/data", token, (err) => {
-    if (err) {
-      return console.log(err);
+  fs.mkdir('/tmp/ReviewMe', { recursive: true }, (err) => {
+    if (!err){
+      fs.writeFile("/tmp/ReviewMe/data", token, (err) => {
+        if (err) {
+          return console.log(err);
+        }
+      });
     }
   });
 }
 
 function readToken() {
-  return fs.existsSync('/tmp/data') ? fs.readFileSync('/tmp/data', 'utf8') : '';
+  return fs.existsSync('/tmp/ReviewMe/data') ? fs.readFileSync('/tmp/ReviewMe/data', 'utf8') : '';
 }
 
 function messageRendererProcesses(channel, message) {

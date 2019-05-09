@@ -54,6 +54,7 @@ class Reviews extends LitElement {
       reviews: [],
       accessToken: String,
       isFetching: false,
+      intervalRef: Number,
     };
   }
 
@@ -93,6 +94,12 @@ class Reviews extends LitElement {
     this.fetchUser();
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    clearTimeout(this.intervalRef);
+    console.log("cleared tiemout");
+  }
+
   fetchUser() {
     fetch(
       `https://api.github.com/user?access_token=${this.accessToken}`,
@@ -102,7 +109,7 @@ class Reviews extends LitElement {
         this.login = response.login;
         this.isFetching = true;
         this.fetchReviews();
-        setInterval(() => {
+        this.intervalRef = setInterval(() => {
           this.fetchReviews();
         }, 30000);
       })
