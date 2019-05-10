@@ -12,6 +12,8 @@
   },
   "build": {
     "appId": "com.review-me",
+    "asar": false,
+    "icon": "assets/icon.png",
     "mac": {
       "category": "productivity"
     },

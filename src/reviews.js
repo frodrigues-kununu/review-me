@@ -117,7 +117,7 @@ class Reviews extends LitElement {
         this.fetchReviews();
       }, 30000);
     })
-    .catch(() => {
+    .catch((error) => {
       console.error("Error:", error);
       this.navigateToLogin();
     });
@@ -136,7 +136,7 @@ class Reviews extends LitElement {
       ipcRenderer.send('pending-reviews-update', this.reviews.length + '');
       this.isFetching = false;
     })
-    .catch(() => {
+    .catch((error) => {
       console.error("Error:", error);
       this.navigateToLogin();
     });
